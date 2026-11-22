@@ -1,14 +1,10 @@
 {
-  "updatedAt": "2026-11-22T22:25:46.397Z",
-  "count": 127,
+  "updatedAt": "2026-11-22T23:45:32.628Z",
+  "count": 128,
   "metrics": {
     "Adam Flowers": {
       "monthlyListeners": 6881,
       "top5Streams": 116088
-    },
-    "Alexx McConnell": {
-      "monthlyListeners": 11,
-      "top5Streams": 1707
     },
     "Emperor X": {
       "monthlyListeners": 1291376,
@@ -74,17 +70,13 @@
       "monthlyListeners": 146635,
       "top5Streams": 28516656
     },
+    "Alexx McConnell": {
+      "monthlyListeners": 11,
+      "top5Streams": 1707
+    },
     "Alfred.": {
       "monthlyListeners": 936,
       "top5Streams": 130031
-    },
-    "Amon": {
-      "monthlyListeners": 3581,
-      "top5Streams": 1805462
-    },
-    "Angry Blackmen": {
-      "monthlyListeners": 428,
-      "top5Streams": 188803
     },
     "Illmac": {
       "monthlyListeners": 23347,
@@ -150,17 +142,17 @@
       "monthlyListeners": 27,
       "top5Streams": 0
     },
+    "Amon": {
+      "monthlyListeners": 3581,
+      "top5Streams": 1805462
+    },
+    "Angry Blackmen": {
+      "monthlyListeners": 428,
+      "top5Streams": 188803
+    },
     "Azena": {
       "monthlyListeners": 3083,
       "top5Streams": 35303
-    },
-    "Baby Franco": {
-      "monthlyListeners": 552,
-      "top5Streams": 163702
-    },
-    "Bas Relief": {
-      "monthlyListeners": 85,
-      "top5Streams": 52016
     },
     "Louie Lambo": {
       "monthlyListeners": 680,
@@ -226,17 +218,17 @@
       "monthlyListeners": 1875,
       "top5Streams": 1953846
     },
+    "Baby Franco": {
+      "monthlyListeners": 552,
+      "top5Streams": 163702
+    },
+    "Bas Relief": {
+      "monthlyListeners": 85,
+      "top5Streams": 52016
+    },
     "Black Astra": {
       "monthlyListeners": 60,
       "top5Streams": 2027
-    },
-    "Blue Fields": {
-      "monthlyListeners": 97,
-      "top5Streams": 26605
-    },
-    "Cameron Spike-Porter": {
-      "monthlyListeners": 4375,
-      "top5Streams": 15699
     },
     "Nature Shots": {
       "monthlyListeners": 0,
@@ -302,17 +294,17 @@
       "monthlyListeners": 30,
       "top5Streams": 0
     },
+    "Blue Fields": {
+      "monthlyListeners": 97,
+      "top5Streams": 26605
+    },
+    "Cameron Spike-Porter": {
+      "monthlyListeners": 4375,
+      "top5Streams": 15699
+    },
     "Catie Waters": {
       "monthlyListeners": 566,
       "top5Streams": 228276
-    },
-    "Chase Moore": {
-      "monthlyListeners": 2920,
-      "top5Streams": 823376
-    },
-    "ChaZZ Love": {
-      "monthlyListeners": 276,
-      "top5Streams": 70702
     },
     "The Regime": {
       "monthlyListeners": 218123,
@@ -378,6 +370,18 @@
       "monthlyListeners": 6,
       "top5Streams": 1536
     },
+    "Chase Moore": {
+      "monthlyListeners": 2920,
+      "top5Streams": 823376
+    },
+    "ChaZZ Love": {
+      "monthlyListeners": 276,
+      "top5Streams": 70702
+    },
+    "Cheap Trick": {
+      "monthlyListeners": 3626348,
+      "top5Streams": 857378087
+    },
     "City and Colour": {
       "monthlyListeners": 888587,
       "top5Streams": 312720828
@@ -385,10 +389,6 @@
     "Club Diego": {
       "monthlyListeners": 424,
       "top5Streams": 87126
-    },
-    "Collin Stanley": {
-      "monthlyListeners": 26,
-      "top5Streams": 123692
     },
     "toe": {
       "monthlyListeners": 327740,
@@ -453,6 +453,10 @@
     "Zoodeville": {
       "monthlyListeners": 1621,
       "top5Streams": 459325
+    },
+    "Collin Stanley": {
+      "monthlyListeners": 26,
+      "top5Streams": 123692
     },
     "Conversing with Oceans": {
       "monthlyListeners": 183,
