@@ -26,12 +26,7 @@ jobs:
         run: node update-popularity.mjs
 
       - name: Commit updated popularity.json
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add popularity.json
-          if ! git diff --staged --quiet; then
-            git commit -m "chore: update Spotify popularity metrics"
-            git pull --rebase --autostash origin main
-            git push origin HEAD:main
-          fi
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update Spotify popularity metrics"
+          file_pattern: "popularity.json"
