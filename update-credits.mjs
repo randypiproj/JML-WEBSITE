@@ -11,15 +11,14 @@ const PLAYLIST_URL =
   "https://open.spotify.com/playlist/6T1NlMgLwWhqn47mmPJ7CJ";
 
 const actorId =
-  process.env.CREDITS_APIFY_ACTOR_ID || "fanndev~spotify-playlist-track-scraper";
+  process.env.CREDITS_APIFY_ACTOR_ID || "automation-lab~spotify-scraper";
 
 const endpoint = `https://api.apify.com/v2/acts/${encodeURIComponent(actorId)}/run-sync-get-dataset-items?token=${encodeURIComponent(APIFY_TOKEN)}`;
 
 const payload = {
-  playlistUrls: [PLAYLIST_URL],
-  includePlaylistRecord: false,
-  enrichWithIsrc: false,
-  maxTracksPerPlaylist: 1000,
+  mode: "urls",
+  urls: [PLAYLIST_URL],
+  maxTracksPerPlaylist: 5000,
 };
 
 const response = await fetch(endpoint, {
@@ -35,17 +34,21 @@ if (!response.ok) {
 }
 
 const items = await response.json();
-if (!Array.isArray(items)) {
-  console.error("Apify playlist response was not an array:", JSON.stringify(items).slice(0, 500));
+if (!Array.isArray(items) || items.length === 0) {
+  console.error("Apify playlist response was empty:", JSON.stringify(items).slice(0, 500));
   process.exit(1);
 }
 
-const trackRows = items.filter(
-  (item) =>
-    item &&
-    item.type !== "PLAYLIST" &&
-    (item.trackName || item.name || item.playCount !== undefined || item.playcount !== undefined || item.streamCount !== undefined)
-);
+const playlistObj = items.find((item) => Array.isArray(item?.tracks));
+const trackRows = playlistObj
+  ? playlistObj.tracks
+  : items.filter(
+      (item) =>
+        item &&
+        (item.playCount !== undefined ||
+          item.playcount !== undefined ||
+          item.streamCount !== undefined)
+    );
 
 let totalStreams = 0;
 const uniqueArtists = new Set();
@@ -67,8 +70,8 @@ for (const track of trackRows) {
       const artistName = typeof artist === "string" ? artist : artist?.name;
       if (artistName) uniqueArtists.add(artistName.trim());
     }
-  } else if (typeof track.artistName === "string") {
-    track.artistName
+  } else if (typeof track.artists === "string") {
+    track.artists
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean)
@@ -80,7 +83,7 @@ const output = {
   updatedAt: new Date().toISOString(),
   playlistUrl: PLAYLIST_URL,
   streams: totalStreams,
-  credits: trackRows.length,
+  credits: Number(playlistObj?.trackCount) || trackRows.length,
   artists: uniqueArtists.size,
 };
 
