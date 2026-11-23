@@ -25,8 +25,13 @@ jobs:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
         run: node update-popularity.mjs
 
-      - name: Commit updated popularity.json
+      - name: Fetch live Spotify discography playlist streams
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: node update-credits.mjs
+
+      - name: Commit updated JSON feeds
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update Spotify popularity metrics"
-          file_pattern: "popularity.json"
+          commit_message: "chore: update Spotify metrics and playlist credits"
+          file_pattern: "popularity.json credits.json"
