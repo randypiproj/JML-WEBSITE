@@ -6,19 +6,27 @@ if (!APIFY_TOKEN) {
   process.exit(1);
 }
 
-const PLAYLIST_URL =
-  process.env.CREDITS_PLAYLIST_URL ||
-  "https://open.spotify.com/playlist/6T1NlMgLwWhqn47mmPJ7CJ";
+const MUSO_PROFILE_URL =
+  process.env.MUSO_PROFILE_URL ||
+  "https://muso.ai/profile/afdbde8b-349c-41ec-8825-90032fd91d43";
 
-const actorId =
-  process.env.CREDITS_APIFY_ACTOR_ID || "automation-lab~spotify-scraper";
-
+const actorId = process.env.MUSO_APIFY_ACTOR_ID || "apify~web-scraper";
 const endpoint = `https://api.apify.com/v2/acts/${encodeURIComponent(actorId)}/run-sync-get-dataset-items?token=${encodeURIComponent(APIFY_TOKEN)}`;
 
+const pageFunction = `async function pageFunction(context) {
+  const { page, request } = context;
+  await page.waitForTimeout(4000);
+  const bodyText = await page.evaluate(() => document.body.innerText || "");
+  const title = await page.title();
+  return { url: request.url, title, bodyText };
+}`;
+
 const payload = {
-  mode: "urls",
-  urls: [PLAYLIST_URL],
-  maxTracksPerPlaylist: 5000,
+  startUrls: [{ url: MUSO_PROFILE_URL }],
+  runMode: "PRODUCTION",
+  maxPagesPerCrawl: 1,
+  maxConcurrency: 1,
+  pageFunction,
 };
 
 const response = await fetch(endpoint, {
@@ -29,65 +37,53 @@ const response = await fetch(endpoint, {
 
 if (!response.ok) {
   const errBody = await response.text();
-  console.error(`Apify playlist request failed (${response.status}): ${errBody}`);
+  console.error(`Apify Muso request failed (${response.status}): ${errBody}`);
   process.exit(1);
 }
 
 const items = await response.json();
-if (!Array.isArray(items) || items.length === 0) {
-  console.error("Apify playlist response was empty:", JSON.stringify(items).slice(0, 500));
-  process.exit(1);
+const text = String(items?.[0]?.bodyText || "");
+
+function parseCompactNumber(raw) {
+  if (!raw) return 0;
+  const cleaned = String(raw).replace(/,/g, "").trim();
+  const match = cleaned.match(/^([\d.]+)\s*([KMB])?$/i);
+  if (!match) return 0;
+  const num = parseFloat(match[1]);
+  const suffix = (match[2] || "").toUpperCase();
+  const mult = suffix === "B" ? 1e9 : suffix === "M" ? 1e6 : suffix === "K" ? 1e3 : 1;
+  return Math.round(num * mult);
 }
 
-const playlistObj = items.find((item) => Array.isArray(item?.tracks));
-const trackRows = playlistObj
-  ? playlistObj.tracks
-  : items.filter(
-      (item) =>
-        item &&
-        (item.playCount !== undefined ||
-          item.playcount !== undefined ||
-          item.streamCount !== undefined)
-    );
+function extractStat(labelPattern) {
+  // Matches either "1.5B\nStreams" or "Streams\n1.5B"
+  const beforeLabel = new RegExp(`([\\d.,]+\\s*[KMB]?)\\s+${labelPattern}`, "i");
+  const afterLabel = new RegExp(`${labelPattern}\\s+([\\d.,]+\\s*[KMB]?)`, "i");
+  const m1 = text.match(beforeLabel);
+  if (m1) return parseCompactNumber(m1[1]);
+  const m2 = text.match(afterLabel);
+  if (m2) return parseCompactNumber(m2[1]);
+  return 0;
+}
 
-let totalStreams = 0;
-const uniqueArtists = new Set();
+const streams = extractStat("(?:Total\\s+)?Streams");
+const credits = extractStat("Credits");
+const collaborators = extractStat("Collaborators");
 
-for (const track of trackRows) {
-  const plays = Number(
-    track.playCount ??
-      track.playcount ??
-      track.streamCount ??
-      track.streams ??
-      0
-  );
-  if (Number.isFinite(plays) && plays > 0) {
-    totalStreams += plays;
-  }
-
-  if (Array.isArray(track.artists)) {
-    for (const artist of track.artists) {
-      const artistName = typeof artist === "string" ? artist : artist?.name;
-      if (artistName) uniqueArtists.add(artistName.trim());
-    }
-  } else if (typeof track.artists === "string") {
-    track.artists
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .forEach((name) => uniqueArtists.add(name));
-  }
+if (streams === 0 && credits === 0) {
+  console.error("Could not parse Muso metrics from page text:", text.slice(0, 600));
+  process.exit(1);
 }
 
 const output = {
   updatedAt: new Date().toISOString(),
-  playlistUrl: PLAYLIST_URL,
-  streams: totalStreams,
-  credits: Number(playlistObj?.trackCount) || trackRows.length,
-  artists: uniqueArtists.size,
+  source: MUSO_PROFILE_URL,
+  streams,
+  credits,
+  artists: collaborators,
 };
 
 fs.writeFileSync("./credits.json", JSON.stringify(output, null, 2) + "\n");
 console.log(
-  `Wrote credits.json: ${output.streams.toLocaleString()} streams across ${output.credits} tracks.`
+  `Wrote credits.json from Muso.AI: ${output.streams.toLocaleString()} streams, ${output.credits} credits, ${output.artists} collaborators.`
 );
